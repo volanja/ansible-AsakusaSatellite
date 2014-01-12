@@ -1,0 +1,3 @@
+Cmnd_Alias AS = /bin/cp, /bin/chmod
+Defaults:as !requiretty
+as	ALL=(ALL)	NOPASSWD:AS

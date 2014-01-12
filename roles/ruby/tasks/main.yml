@@ -1,0 +1,56 @@
+- name: Template epel.repo
+  template: src=epel.repo dest=/etc/yum.repos.d/epel.repo mode=0644
+
+- name: Install(Group) development
+  yum: pkg='@development' state=latest
+
+- name: Install Ruby Dependency
+  yum: pkg={{ item }} state=present enablerepo=epel 
+  with_items:
+    - openssl-devel
+    - zlib-devel
+    - gdbm-devel
+    - readline-devel
+    - ncurses-devel
+    - libffi-devel
+    - libyaml-devel
+    - libxml2-devel
+    - libxslt-devel
+    - libicu-devel
+    - libcurl-devel
+    - curl
+
+
+- name: Download rbenv
+  git: repo=https://github.com/sstephenson/rbenv.git dest=~/.rbenv
+  remote_user: as
+
+- name: rbenv echo
+  action: shell echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
+  remote_user: as
+
+- name: rbenv echo
+  action: shell echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+  remote_user: as
+
+- name: Download ruby-build
+  git: repo=https://github.com/sstephenson/ruby-build.git dest=~/.rbenv/plugins/ruby-build
+  remote_user: as
+
+- name: Install ruby-build
+  action: shell /bin/bash -c "export PREFIX=~/local/src/ &&  ~/.rbenv/plugins/ruby-build/install.sh" chdir=~/.rbenv/plugins/ruby-build
+  remote_user: as
+
+- name: Install Ruby
+  action: shell rbenv install {{ ruby_ver }} -f -k
+  remote_user: as
+
+- name: rbenv global 
+  action: shell rbenv global {{ ruby_ver }}
+  notify: rehash
+  remote_user: as
+
+- name: gem install bundler
+  action: shell rbenv exec gem install bundler --no-ri --no-rdoc
+  notify: rehash
+  remote_user: as

@@ -1,0 +1,10 @@
+- name: Ansible-AsakusaSatellite
+  hosts: server
+  user: root
+  roles:
+    - hostname
+    - git
+    - mongodb
+    - nginx
+    - user
+    - ruby

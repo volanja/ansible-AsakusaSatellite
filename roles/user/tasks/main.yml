@@ -1,0 +1,15 @@
+---
+- name: Add User as
+  user: name=as
+
+- name: Copy .gitconfig
+  template: src=.gitconfig dest=/home/as/.gitconfig mode=0664
+
+- name: Copy /etc/sudoers.d/sudo_as
+  template: src=sudo_as dest=/etc/sudoers.d/as mode=0440
+
+- name: Create ~/.ssh
+  file: path=/home/as/.ssh state=directory
+
+- name: Copy ssh_pub_key
+  shell: cp /root/.ssh/authorized_keys /home/as/.ssh/authorized_keys && chown as:as /home/as/.ssh/authorized_keys && chmod 600 /home/as/.ssh/authorized_keys
