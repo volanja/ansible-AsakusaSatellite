@@ -1,0 +1,35 @@
+---
+- name: Download AsakusaSatellite
+  git: repo=https://github.com/codefirst/AsakusaSatellite.git dest=~/AsakusaSatellite
+       update=no
+  remote_user: as
+
+- name: bundle install
+  command: chdir=~/AsakusaSatellite bundle install --path .bundle --without development test
+  remote_user: as
+
+- name: asset precompile
+  command: "chdir=~/AsakusaSatellite bundle exec rake assets:precompile RAILS_ENV=production"
+  remote_user: as
+
+# Add Config for thin
+- name: Template AsakusaSatellite/socky/thin.yml
+  template: src=thin.yml dest=~/AsakusaSatellite/socky/thin.yml mode=0664 owner=as group=as
+  remote_user: as
+  tags: test
+
+# Add Config for AsakusaSatellite
+- name: Template /etc/init.d/AsakusaSatellite
+  template: src=init_as.j2 dest=/etc/init.d/AsakusaSatellite mode=0755 owner=root group=root
+  tags: test
+
+- name: ensure AsakusaSatellite is running automatically at boot time
+  service: name=AsakusaSatellite state=started enabled=yes
+
+# Nginx
+# Add Config for Nginx
+- name: Template nginx/conf.d/as.conf
+  template: src=nginx_as.conf.j2 dest=/etc/nginx/conf.d/as.conf mode=0644
+
+- name: restart nginx
+  service: name=nginx state=restarted

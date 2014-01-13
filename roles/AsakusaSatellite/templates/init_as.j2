@@ -1,0 +1,77 @@
+#! /bin/sh
+
+# chkconfig: - 85 15
+
+### BEGIN INIT INFO
+# Provides:          AsakusaSatellite
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: AsakusaSatellite chat software
+# Description:       AsakusaSatellite chat software
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+### Environment variables
+RAILS_ENV="production"
+
+# Feel free to change any of the following variables for your app:
+TIMEOUT=${TIMEOUT-60}
+APP_ROOT={{ as_home }}/AsakusaSatellite
+APP_USER="as"
+BUNDLE="/home/as/.rbenv/shims/bundle"
+RAILS_PID=$APP_ROOT/tmp/pids/server.pid
+SOCKY_PID=$APP_ROOT/tmp/pids/thin.pid
+RAILS_CMD="$BUNDLE exec rails server -e $RAILS_ENV -d"
+SOCKY_CMD="$BUNDLE exec thin -R $APP_ROOT/socky/config.ru -C $APP_ROOT/socky/thin.yml"
+action="$1"
+
+cd $APP_ROOT || exit 1
+
+sig () {
+  test -s "$RAILS_PID" && kill -$1 `cat $RAILS_PID`
+}
+
+start () {
+  sig 0 && echo >&2 "Already running" && exit 0
+  sudo -u $APP_USER sh -c "cd $APP_ROOT && $RAILS_CMD"
+  sudo -u $APP_USER sh -c "cd $APP_ROOT && $SOCKY_CMD start"
+}
+stop () {
+  sig QUIT
+  sudo -u $APP_USER sh -c "cd $APP_ROOT && $SOCKY_CMD stop"
+  echo >&2 "Not running"
+}
+
+rh_status(){
+  status -p $RAILS_PID AsakusaSatellite
+  status -p $SOCKY_PID AsakusaSatellite-Socky
+}
+
+case $action in
+start)
+  start
+  exit 0
+  ;;
+stop)
+  stop
+  exit 0
+  ;;
+restart)
+  stop
+  sleep 3
+  start
+  exit 0
+  ;;
+status)
+  rh_status
+  exit 0
+  ;;
+*)
+  echo >&2 "Usage: $0 <start|stop|restart>"
+  exit 1
+  ;;
+esac

@@ -1,0 +1,5 @@
+---
+pid: tmp/pids/thin.pid
+port: 3002
+log: log/thin.log
+daemonize: true
