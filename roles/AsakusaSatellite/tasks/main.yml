@@ -18,6 +18,11 @@
   remote_user: as
   tags: test
 
+# Remove plugins/as_redmine_ticket_link_filter/config/locales/en.yml for https://github.com/volanja/ansible-AsakusaSatellite/issues/1
+- name: Remove plugins/as_redmine_ticket_link_filter/config/locales/en.yml
+  file: path=~/AsakusaSatellite/plugins/as_redmine_ticket_link_filter/config/locales/en.yml state=absent
+  remote_user: as
+
 # Add Config for AsakusaSatellite
 - name: Template /etc/init.d/AsakusaSatellite
   template: src=init_as.j2 dest=/etc/init.d/AsakusaSatellite mode=0755 owner=root group=root
