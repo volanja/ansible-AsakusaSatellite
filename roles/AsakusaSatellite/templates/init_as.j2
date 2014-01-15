@@ -23,9 +23,9 @@ TIMEOUT=${TIMEOUT-60}
 APP_ROOT={{ as_home }}/AsakusaSatellite
 APP_USER="as"
 BUNDLE="/home/as/.rbenv/shims/bundle"
-RAILS_PID=$APP_ROOT/tmp/pids/server.pid
+RAILS_PID=$APP_ROOT/tmp/pids/unicorn.pid
 SOCKY_PID=$APP_ROOT/tmp/pids/thin.pid
-RAILS_CMD="$BUNDLE exec rails server -e $RAILS_ENV -d"
+RAILS_CMD="$BUNDLE exec unicorn_rails -D -c $APP_ROOT/config/unicorn.rb -E $RAILS_ENV"
 SOCKY_CMD="$BUNDLE exec thin -R $APP_ROOT/socky/config.ru -C $APP_ROOT/socky/thin.yml"
 action="$1"
 

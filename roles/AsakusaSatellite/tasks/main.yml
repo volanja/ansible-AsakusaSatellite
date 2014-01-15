@@ -1,7 +1,12 @@
 ---
 - name: Download AsakusaSatellite
   git: repo=https://github.com/codefirst/AsakusaSatellite.git dest=~/AsakusaSatellite
-       update=no
+       version={{ as_ver }}  update=no
+  remote_user: as
+
+- name: insert gem 'unicorn'
+  lineinfile: dest=/home/as/AsakusaSatellite/Gemfile state=present
+              insertbefore="^group" line="gem 'unicorn'"
   remote_user: as
 
 - name: bundle install
@@ -12,21 +17,18 @@
   command: "chdir=~/AsakusaSatellite bundle exec rake assets:precompile RAILS_ENV=production"
   remote_user: as
 
+- name: Template config/unicorn.rb
+  template: src=unicorn.rb.j2 dest=~/AsakusaSatellite/config/unicorn.rb mode=0600
+  remote_user: as
+
 # Add Config for thin
 - name: Template AsakusaSatellite/socky/thin.yml
   template: src=thin.yml dest=~/AsakusaSatellite/socky/thin.yml mode=0664 owner=as group=as
-  remote_user: as
-  tags: test
-
-# Remove plugins/as_redmine_ticket_link_filter/config/locales/en.yml for https://github.com/volanja/ansible-AsakusaSatellite/issues/1
-- name: Remove plugins/as_redmine_ticket_link_filter/config/locales/en.yml
-  file: path=~/AsakusaSatellite/plugins/as_redmine_ticket_link_filter/config/locales/en.yml state=absent
   remote_user: as
 
 # Add Config for AsakusaSatellite
 - name: Template /etc/init.d/AsakusaSatellite
   template: src=init_as.j2 dest=/etc/init.d/AsakusaSatellite mode=0755 owner=root group=root
-  tags: test
 
 - name: ensure AsakusaSatellite is running automatically at boot time
   service: name=AsakusaSatellite state=started enabled=yes
