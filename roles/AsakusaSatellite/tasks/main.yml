@@ -4,9 +4,8 @@
        version={{ as_ver }}  update=no
   remote_user: as
 
-- name: insert gem 'unicorn'
-  lineinfile: dest=/home/as/AsakusaSatellite/Gemfile state=present
-              insertbefore="^group" line="gem 'unicorn'"
+- name: Template Gemfile
+  template: src=Gemfile dest=~/AsakusaSatellite/Gemfile mode=0664
   remote_user: as
 
 - name: bundle install
