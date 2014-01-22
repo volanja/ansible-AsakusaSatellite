@@ -1,0 +1,22 @@
+---
+- name: insert gem 'omniauth-redmine'
+  lineinfile: dest={{ as_dir }}/Gemfile state=present
+              insertbefore="^group" line="gem 'omniauth-redmine', :github => 'suer/omniauth-redmine'"
+  remote_user: as
+
+- name: bundle install
+  command: chdir=~/AsakusaSatellite bundle install --path .bundle --without development test
+  remote_user: as
+
+- name: disable as_twitterauth_plugin
+  lineinfile: "dest={{ as_dir }}/config/filter_intra.yml state=present
+              regexp='^.*as_twitterauth_plugin$' line='# - dir: as_twitterauth_plugin'"
+  remote_user: as
+
+- name: template config/settings.yml
+  template: src=omniauth-redmine/settings.yml dest={{ as_dir }}/config/settings.yml
+            backup=yes
+  remote_user: as
+
+- name: restart AsakusaSatellite
+  service: name=AsakusaSatellite state=restarted

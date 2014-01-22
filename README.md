@@ -34,3 +34,8 @@ CentOS 6.4 64bit   (virtualbox + vagrantで構築)
 + MongoDB 2.4.9
 + Nginx
 
+Plugins
+-----
+全てのプラグインの開発者に感謝します。
+
+[Plugins](docs/plugins.md)
