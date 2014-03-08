@@ -28,8 +28,8 @@ CentOS 6.4 64bit   (virtualbox + vagrantで構築)
 
 インストールするもの
 ------
-+ AsakusaSatellite 0.9.0.beta
-+ ruby 2.0.0p353 (/home/as配下にrbenvでインストール)
++ AsakusaSatellite 0.9.0
++ ruby 2.1.1 (/home/as配下にrbenvでインストール)
 + Rails   3.2.14
 + MongoDB 2.4.9
 + Nginx
