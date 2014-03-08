@@ -27,7 +27,7 @@
 
 # Add Config for AsakusaSatellite
 - name: Template /etc/init.d/AsakusaSatellite
-  template: src=init_as.j2 dest=/etc/init.d/AsakusaSatellite mode=0755 owner=root group=root
+  template: src=init_AsakusaSatellite.j2 dest=/etc/init.d/AsakusaSatellite mode=0755 owner=root group=root
 
 - name: ensure AsakusaSatellite is running automatically at boot time
   service: name=AsakusaSatellite state=started enabled=yes
