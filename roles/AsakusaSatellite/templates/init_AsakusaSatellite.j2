@@ -27,28 +27,39 @@ RAILS_PID=$APP_ROOT/tmp/pids/unicorn.pid
 SOCKY_PID=$APP_ROOT/tmp/pids/thin.pid
 RAILS_CMD="$BUNDLE exec unicorn_rails -D -c $APP_ROOT/config/unicorn.rb -E $RAILS_ENV"
 SOCKY_CMD="$BUNDLE exec thin -R $APP_ROOT/socky/config.ru -C $APP_ROOT/socky/thin.yml"
+RAILS_NAME="AsakusaSatellite"
+SOCKY_NAME="AsakusaSatellite-Socky"
+
 action="$1"
+
 
 cd $APP_ROOT || exit 1
 
-sig () {
-  test -s "$RAILS_PID" && kill -$1 `cat $RAILS_PID`
+start () {
+  echo -n $"Starting ${RAILS_NAME}: "
+  daemon --pidfile=${RAILS_PID} --user=${APP_USER} "cd ${APP_ROOT} && ${RAILS_CMD}"
+  RETVAL=$?
+  echo
+  echo -n $"Starting ${SOCKY_NAME}: "
+  daemon --pidfile=${SOCKY_PID} --user=${APP_USER} "cd ${APP_ROOT} && ${SOCKY_CMD} start"
+  RETVAL=$?
+  echo
 }
 
-start () {
-  sig 0 && echo >&2 "Already running" && exit 0
-  sudo -u $APP_USER sh -c "cd $APP_ROOT && $RAILS_CMD"
-  sudo -u $APP_USER sh -c "cd $APP_ROOT && $SOCKY_CMD start"
-}
 stop () {
-  sig QUIT
-  sudo -u $APP_USER sh -c "cd $APP_ROOT && $SOCKY_CMD stop"
-  echo >&2 "Not running"
+  echo -n $"Stopping ${RAILS_NAME}: "
+  killproc -p ${RAILS_PID} ${RAILS_NAME} -QUIT
+  RETVAL=$?
+  echo
+  echo -n $"Stopping ${SOCKY_NAME}: "
+  killproc -p ${SOCKY_PID} ${SOCKY_NAME} -QUIT
+  RETVAL=$?
+  echo
 }
 
 rh_status(){
-  status -p $RAILS_PID AsakusaSatellite
-  status -p $SOCKY_PID AsakusaSatellite-Socky
+  status -p ${RAILS_PID} ${RAILS_NAME}
+  status -p ${SOCKY_PID} ${SOCKY_NAME}
 }
 
 case $action in
@@ -71,7 +82,7 @@ status)
   exit 0
   ;;
 *)
-  echo >&2 "Usage: $0 <start|stop|restart>"
+  echo >&2 "Usage: $0 <start|stop|restart|status>"
   exit 1
   ;;
 esac
