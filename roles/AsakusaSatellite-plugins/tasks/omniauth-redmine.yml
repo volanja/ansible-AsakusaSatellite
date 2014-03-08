@@ -18,5 +18,9 @@
             backup=yes
   remote_user: as
 
+- name: template config/initializers/omniauth_redmine.rb
+  template: src=omniauth-redmine/initializers/omniauth_redmine.rb.j2 dest={{ as_dir }}/config/initializers/omniauth_redmine.rb
+  remote_user: as
+
 - name: restart AsakusaSatellite
   service: name=AsakusaSatellite state=restarted
